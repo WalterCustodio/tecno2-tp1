@@ -4,11 +4,11 @@ let imageComposer;
 let simple = [];
 
 let gestures = [];
-let maxImages = 60;
+let maxImages = 35;
 let isMouseMoving = false;
 
 function preload() {
-  for (let i = 0; i < 2; i++) {
+  for (let i = 0; i < 11; i++) {
     simple[i] = loadImage('imagenes/simple_' + i + '.png');
   }
 }
@@ -64,8 +64,8 @@ class ImageComposer {
     let maxImages;
   
     if (gesture.type === "Corto") {
-      maxImages = 20;
-      let minOpacity = 0.3; // Opacidad mínima para movimientos cortos
+      maxImages = 10;
+      let minOpacity = 0.0; // Opacidad mínima para movimientos cortos
       let maxOpacity = 0.7; // Opacidad máxima para movimientos cortos
       for (let i = 0; i < maxImages; i++) {
         let image = this.composeSingleImage(this.getRandomFromArray(simple), minOpacity, maxOpacity);
@@ -73,8 +73,8 @@ class ImageComposer {
       }
     } else if (gesture.type === "Largo") {
       maxImages = 40;
-      let minOpacity = 0.3; // Opacidad mínima para movimientos largos
-      let maxOpacity = 1; // Opacidad máxima para movimientos largos
+      let minOpacity = 0.1; // Opacidad mínima para movimientos largos
+      let maxOpacity = 0.9; // Opacidad máxima para movimientos largos
       for (let i = 0; i < maxImages; i++) {
         let image = this.composeSingleImage(this.getRandomFromArray(simple), minOpacity, maxOpacity);
         composedImages.push(image);
@@ -88,7 +88,7 @@ class ImageComposer {
   
   
   composeSingleImage(image, minOpacity, maxOpacity) {
-    let maxSize = min(width, height) * 0.4;
+    let maxSize = min(width, height) * 0.6;
     let aspectRatio = image.width / image.height;
     let imageWidth, imageHeight;
   
@@ -112,11 +112,13 @@ class ImageComposer {
   
 }
 
+
 function setup() {
   createCanvas(800, 600);
   gestureDetector = new GestureDetector();
   imageComposer = new ImageComposer();
-  background(220);
+  background(231,227,220);
+
 }
 
 function draw() {
@@ -128,9 +130,9 @@ function draw() {
       let composedImage = composedImages[i];
       gestures.push({
         image: composedImage,
-        x: random(width - composedImage.width) + composedImage.width / 2,
-        y: random(height - composedImage.height) + composedImage.height / 2,
-        rotation: random(TWO_PI)
+        x: random(width),
+        y: random(height ) ,
+        rotation: random(TWO_PI) * radians(45)
       });
       
       if (gestures.length > maxImages) {
@@ -141,7 +143,7 @@ function draw() {
     isMouseMoving = false;
   }
   
-  background(220);
+  background(231,227,220);
   
   for (let i = 0; i < gestures.length; i++) {
     let currentGesture = gestures[i];
