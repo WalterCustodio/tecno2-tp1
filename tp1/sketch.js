@@ -1,166 +1,175 @@
-let gestureDetector;
-let imageComposer;
 
-let simple = [];
+//-----------------MICROFONO-------------------
+let mic;
 
-let gestures = [];
-let maxImages = 35;
-let isMouseMoving = false;
+//--AMPLITUD
+let amp;
+//------------GESTOR------------------------
+let gestorAmp;
+//
+//----------Configuración
+let AMP_MIN = 0.004;
+let AMP_MAX = 0.05;
+let AMORTIGUACION = 0.94; // factor de amortiguación
+// BOOLEANOS
+let haySonido = false;
+let antesHabiaSonido = false;
+let IMPRIMIR = false;
+//
+//-----------------------------tiempo
+let marcaDeTiempo;
+let umbralDeTiempo = 2500;
+//
+//------------------sketch-----------------
+let bg;
+let vel;
 
-function preload() {
-  for (let i = 0; i < 11; i++) {
-    simple[i] = loadImage('imagenes/simple_' + i + '.png');
+let figuras = [];
+let cantidadDeFiguras = 100;
+let estado;
+let img;
+//-------------------setup----------------
+
+function setup(){
+
+    createCanvas(800,600);
+    estado = "primero";
+
+    //-------------GESTOR -----
+    gestorAmp = new GestorSenial(AMP_MIN, AMP_MAX);
+    gestorAmp.f = AMORTIGUACION;
+
+    //--------
+    bg = createGraphics (width , height);
+
+    //-------------- FIGURAS---------- terminoElSonido = antesHabiaSonido && !haySonido;
+    for( let i=0;i<cantidadDeFiguras;i++){
+      vel = random(-3,3);
+      figuras.push(new Figura(vel));
+
+    }
+
+    //--------------MICROFONO----------
+    mic = new p5.AudioIn();
+    mic.start();
+ 
+  }
+
+
+function draw(){
+
+// analizado el sonido
+//
+gestorAmp.actualizar(mic.getLevel());  
+
+amp = gestorAmp.filtrada;
+
+//console.log(amp)
+
+haySonido = amp > AMP_MIN; 
+
+let empezoElSonido = haySonido && !antesHabiaSonido; 
+let terminoElsonido = antesHabiaSonido && !haySonido;
+
+if(empezoElSonido){
+
+ marcaDeTiempo = millis();
+}
+if(terminoElsonido){
+
+  let momentoActual = millis();
+
+  if (momentoActual > marcaDeTiempo + umbralDeTiempo){
+    //acá hago algo con el sonido corto
+    console.log("largo")
+  }
+  if (momentoActual < marcaDeTiempo + umbralDeTiempo){
+    //acá hago algo con el sonido largo
+    console.log("corto")
   }
 }
 
-class GestureDetector {
-  constructor() {
-    this.prevMouseX = 0;
-    this.prevMouseY = 0;
-  }
-  
-  detectGesture() {
-    let dx = mouseX - this.prevMouseX;
-    let dy = mouseY - this.prevMouseY;
-    
-    let gestureType;
-    if (abs(dx) < 10 && abs(dy) < 10) {
-      gestureType = "Corto";
-    } else {
-      gestureType = "Largo";
-    }
-    
-    let gesturespeed;
-    let gestureLength = dist(this.prevMouseX, this.prevMouseY, mouseX, mouseY);
-    let gestureDuration = millis();
-    
-    if (gestureDuration > 0) {
-      gesturespeed = gestureLength / gestureDuration;
-    } else {
-      gesturespeed = 0;
-    }
-    
-    this.prevMouseX = mouseX;
-    this.prevMouseY = mouseY;
-    
-    return { type: gestureType, speed: gesturespeed };
-  }
-}
+bg.background(239,239,230)
 
-class ImageComposer {
-  constructor() {}
-  
-  getRandomFromArray(arr) {
-    if (arr.length > 0) {
-      let index = Math.floor(random(arr.length));
-      return arr[index];
-    } else {
-      return null;
-    }
-  }
-  
-  composeImage(gesture) {
-    let composedImages = [];
-    let maxImages;
-  
-    if (gesture.type === "Corto") {
-      maxImages = 10;
-      let minOpacity = 0.0; // Opacidad mínima para movimientos cortos
-      let maxOpacity = 0.7; // Opacidad máxima para movimientos cortos
-      for (let i = 0; i < maxImages; i++) {
-        let image = this.composeSingleImage(this.getRandomFromArray(simple), minOpacity, maxOpacity);
-        composedImages.push(image);
+    //----separamos entre lentos, vel media y rápidos
+    let rapidos = figuras.filter (spd => spd.vel>1.5);
+    let medios = figuras.filter (spd => spd.vel >= -2.7 && spd.vel<=1.5);
+    let lentos = figuras.filter (spd => spd.vel<-2.7);
+
+   // console.log("figuras = ",figuras.length,"rapidos =", rapidos.length, "medios = ", medios.length, "lentos = ", lentos.length)
+
+
+      for(let i=0;i<medios.length;i++){   //-------- FIGURAS DE VEL MEDIA
+        medios[i].dibujar(1);
+
+        if(haySonido){   //----------------------evento para mover y rotar
+          medios[i].mover();
+        }
+
+        medios[i].fill(150,150,150,170);  //---------------------controlamos el color
+        }
+ 
+    for(let i=0;i<rapidos.length;i++){ // ----------------- FIGURAS RAPIDAS
+      rapidos[i].dibujar(1);
+   //   rapidos[i].variacion(amp);
+   rapidos[i].mover();
+   if(haySonido){       //----------------------evento para mover y rotar
+
+    //  rapidos[i].rotar();
+   }
+
+      rapidos[i].fill(200,200,190,150);   // -----------------------controlamos el color
       }
-    } else if (gesture.type === "Largo") {
-      maxImages = 40;
-      let minOpacity = 0.1; // Opacidad mínima para movimientos largos
-      let maxOpacity = 0.9; // Opacidad máxima para movimientos largos
-      for (let i = 0; i < maxImages; i++) {
-        let image = this.composeSingleImage(this.getRandomFromArray(simple), minOpacity, maxOpacity);
-        composedImages.push(image);
-      }
-    } else {
-      maxImages = 0;
-    }
+        console.log(lentos.length)
+      for(let i=0;i<lentos.length;i++){      // ------------ FIGURAS LENTAS
+       // lentos[i].variacion(amp);
+
+        lentos[i].dibujar(2);
+
+        if(haySonido){ //----------------------evento para mover y rotar
+
+       lentos[i].mover();
+      //  lentos[i].rotar();
+        }
+        lentos[i].fill(70,70,75, 200); //---------------------------controlamos el color
+        }
+        image(bg, 0, 0);
+        antesHabiaSonido = haySonido;
+//estado == "segundo";
+
+if(estado == "primero" ){
+
+}else if (estado == "segundo") {
   
-    return composedImages;
-  }
-  
-  
-  composeSingleImage(image, minOpacity, maxOpacity) {
-    let maxSize = min(width, height) * 0.6;
-    let aspectRatio = image.width / image.height;
-    let imageWidth, imageHeight;
-  
-    if (aspectRatio > 1) {
-      imageWidth = maxSize;
-      imageHeight = maxSize / aspectRatio;
-    } else {
-      imageWidth = maxSize * aspectRatio;
-      imageHeight = maxSize;
-    }
-  
-    let composed = createGraphics(imageWidth, imageHeight);
-    composed.blendMode(BLEND);
-  
-    let opacity = random(minOpacity, maxOpacity);
-    composed.tint(255, opacity * 255); // Set opacity as a value between 0 and 1
-    composed.image(image, 0, 0, imageWidth, imageHeight);
-  
-    return composed;
-  }
-  
+}else if (estado == "tercero"){
 }
 
 
-function setup() {
-  createCanvas(800, 600);
-  gestureDetector = new GestureDetector();
-  imageComposer = new ImageComposer();
-  background(231,227,220);
-
-}
-
-function draw() {
-  if (isMouseMoving) {
-    let gesture = gestureDetector.detectGesture();
-    let composedImages = imageComposer.composeImage(gesture);
-    
-    for (let i = 0; i < composedImages.length; i++) {
-      let composedImage = composedImages[i];
-      gestures.push({
-        image: composedImage,
-        x: random(width),
-        y: random(height ) ,
-        rotation: random(TWO_PI) * radians(45)
-      });
-      
-      if (gestures.length > maxImages) {
-        gestures.shift();
-      }
-    }
-    
-    isMouseMoving = false;
-  }
-  
-  background(231,227,220);
-  
-  for (let i = 0; i < gestures.length; i++) {
-    let currentGesture = gestures[i];
-    let x = currentGesture.x;
-    let y = currentGesture.y;
-    let imageWidth = currentGesture.image.width;
-    let imageHeight = currentGesture.image.height;
-    let rotation = currentGesture.rotation;
-    
-    translate(x, y);
-    rotate(rotation);
-    image(currentGesture.image, -imageWidth / 2, -imageHeight / 2);
-    rotate(-rotation);
-    translate(-x, -y);
+if(IMPRIMIR){
+  printData();
   }
 }
+function printData(){
 
-function mouseMoved() {
-  isMouseMoving = true;
+  background(255);
+  push();
+  textSize(16);
+  fill(0);
+  let texto;
+
+  texto = 'amplitud: ' + amp;
+  text(texto, 20, 20);
+
+  fill(0);
+  ellipse(width/2, height-amp * 300, 30, 30);
+
+  pop();
+
+  gestorAmp.dibujar(100, 500);
+}
+
+function keyPressed() {
+  if (key === 'r') {
+    reiniciarPrototipo();
+  }
 }
