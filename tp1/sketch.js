@@ -19,6 +19,8 @@ let IMPRIMIR = false;
 //-----------------------------tiempo
 let marcaDeTiempo;
 let umbralDeTiempo = 2500;
+
+let ultimoSonido;
 //
 //------------------sketch-----------------
 let bg;
@@ -80,11 +82,11 @@ if(terminoElsonido){
   let momentoActual = millis();
 
   if (momentoActual > marcaDeTiempo + umbralDeTiempo){
-    //acá hago algo con el sonido corto
+    ultimoSonido = "largo";
     console.log("largo")
   }
   if (momentoActual < marcaDeTiempo + umbralDeTiempo){
-    //acá hago algo con el sonido largo
+    ultimoSonido = "corto";
     console.log("corto")
   }
 }
@@ -112,10 +114,9 @@ bg.background(239,239,230)
     for(let i=0;i<rapidos.length;i++){ // ----------------- FIGURAS RAPIDAS
       rapidos[i].dibujar(1);
    //   rapidos[i].variacion(amp);
-   rapidos[i].mover();
-   if(haySonido){       //----------------------evento para mover y rotar
 
-    //  rapidos[i].rotar();
+   if (ultimoSonido== "largo"){
+   rapidos[i].mover();
    }
 
       rapidos[i].fill(200,200,190,150);   // -----------------------controlamos el color
@@ -129,6 +130,7 @@ bg.background(239,239,230)
         if(haySonido){ //----------------------evento para mover y rotar
 
        lentos[i].mover();
+ 
       //  lentos[i].rotar();
         }
         lentos[i].fill(70,70,75, 200); //---------------------------controlamos el color
