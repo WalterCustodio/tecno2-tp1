@@ -27,13 +27,13 @@ let bg;
 let vel;
 
 let figuras = [];
-let cantidadDeFiguras = 100;
+let cantidadDeFiguras = 90;
 let estado;
 let img;
 //-------------------setup----------------
 
 function setup(){
-
+  userStartAudio();
     createCanvas(800,600);
     estado = "primero";
 
@@ -94,6 +94,7 @@ if(terminoElsonido){
 bg.background(239,239,230)
 
     //----separamos entre lentos, vel media y rápidos
+    
     let rapidos = figuras.filter (spd => spd.vel>1.5);
     let medios = figuras.filter (spd => spd.vel >= -2.7 && spd.vel<=1.5);
     let lentos = figuras.filter (spd => spd.vel<-2.7);
@@ -108,7 +109,7 @@ bg.background(239,239,230)
           medios[i].mover();
         }
 
-        medios[i].fill(150,150,150,170);  //---------------------controlamos el color
+        medios[i].fill(150,150,140,170);  //---------------------controlamos el color
         }
  
     for(let i=0;i<rapidos.length;i++){ // ----------------- FIGURAS RAPIDAS
