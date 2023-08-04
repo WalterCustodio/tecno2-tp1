@@ -81,7 +81,7 @@ function draw(){
 
 gestorAmp.actualizar(mic.getLevel());  
 amp = gestorAmp.filtrada;
-console.log(amp)
+//console.log(amp)
 
 haySonido = amp > AMP_MIN; 
 
@@ -98,13 +98,13 @@ if(terminoElsonido){
   if (momentoActual > marcaDeTiempo + umbralDeTiempo){
     ultimoSonido = "largo";
     opbg = 100;
-    console.log("largo")
+   // console.log("largo")
   }
   if (momentoActual < marcaDeTiempo + umbralDeTiempo){
     ultimoSonido = "corto";
 
     opbg = 30;
-    console.log("corto")
+   // console.log("corto")
   }
 }
 if (amp > unmbralSonido){
