@@ -164,7 +164,7 @@ function crearTextura(graphics){
   graphics.push();
   graphics.pixelDensity(1);
     graphics.noStroke();
-    for (let n = 0; n < 19000; n++) {
+    for (let n = 0; n < 22000; n++) {
       let i = random(width);
       let j = random(height);
     graphics.fill(0,0,0,random(5,100));
