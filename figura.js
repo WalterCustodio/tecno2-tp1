@@ -5,24 +5,26 @@ class Figura{
     let probabilidad = int(random(100));
      this.tx = textura_;
   
-    this.vel = random(-3,3);
+    this.vel = random(-4,4);
     if ( probabilidad < 10){ // 10% de probabilidad de tener figuras de opacidad alta
       this.bajar = true;
      // console.log(probabilidad)
       this.opacity = int(random(150, 255));  
-    } else if (probabilidad >10 && probabilidad<70){  // 60% de probabilidad de tener figuras de opacidad baja
-      this.opacity = int(random(30,99))
+    } else if (probabilidad >10 && probabilidad<65){  // 55% de probabilidad de tener figuras de opacidad baja
+      this.opacity = int(random(60,99))
     
-    } else { // 30% de probabilidad de tener figuras de opacidad media
+    } else { // 35% de probabilidad de tener figuras de opacidad media
       this.opacity = int(random(100, 149)); 
     }
+
      this.cual = int(random(1, 6));
+     console.log(this.cual)
       this.dir = radians(45);
       this.rotacion = radians(random(-3,3)*45);
       this.tam;
       this.variacionAngular= (random(-45,45));
-      this.x = int(random (-100, width));
-      this.y = int(random (-100, height));
+      this.x = int(random (-100, width+100));
+      this.y = int(random (-100, height+50));
       this.graphics_ = createGraphics(width ,height);
       this.graphics_.pixelDensity(1)
       this.fg;
@@ -213,6 +215,7 @@ mover(){
 
 cambiarForma(){
   this.cual = int(random(1, 5));
+  this.rotacion = radians(random(-3,3)*45);
 }
 
 cambiarPosicion(){
@@ -239,5 +242,4 @@ bajarOpacidad(){
     }
   }
 }
-
 }
