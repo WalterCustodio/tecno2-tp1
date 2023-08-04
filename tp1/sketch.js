@@ -19,54 +19,69 @@ let IMPRIMIR = false;
 //-----------------------------tiempo
 let marcaDeTiempo;
 let umbralDeTiempo = 2500;
-
+let unmbralSonido = 0.11;
 let ultimoSonido;
 //
 //------------------sketch-----------------
-let bg;
-let vel;
 
 let figuras = [];
-let cantidadDeFiguras = 90;
-let estado;
-let img;
+let texturas = [];
+let cantidadDeFiguras = 35;
+let cantidadDeTexturas = 10;
+let opbg = 30;
+
+let tamL = 2;
+let tamM = 1.7;
+let tamS = 1.5;
+
+
+let width = 920;
+let height = 678;
+
+
+function preload(){
+
+  for (let i =0; i <cantidadDeTexturas; i++){
+    texturas[i] = createGraphics(width,height);
+
+    crearTextura(texturas[i]);
+  }
+}
 //-------------------setup----------------
 
-function setup(){
-  userStartAudio();
-    createCanvas(800,600);
-    estado = "primero";
 
+function setup(){
+
+    createCanvas(width,height);
+    pixelDensity(1)
+    frameRate(30)
+    userStartAudio();
     //-------------GESTOR -----
     gestorAmp = new GestorSenial(AMP_MIN, AMP_MAX);
     gestorAmp.f = AMORTIGUACION;
-
     //--------
-    bg = createGraphics (width , height);
+
 
     //-------------- FIGURAS---------- terminoElSonido = antesHabiaSonido && !haySonido;
     for( let i=0;i<cantidadDeFiguras;i++){
-      vel = random(-3,3);
-      figuras.push(new Figura(vel));
 
+      let index = int(random(0,texturas.length));
+
+      figuras.push(new Figura(texturas[index]));
+      
+    
     }
-
     //--------------MICROFONO----------
     mic = new p5.AudioIn();
     mic.start();
- 
   }
 
-
 function draw(){
+  //--------- analizado el sonido
 
-// analizado el sonido
-//
 gestorAmp.actualizar(mic.getLevel());  
-
 amp = gestorAmp.filtrada;
-
-//console.log(amp)
+console.log(amp)
 
 haySonido = amp > AMP_MIN; 
 
@@ -74,7 +89,6 @@ let empezoElSonido = haySonido && !antesHabiaSonido;
 let terminoElsonido = antesHabiaSonido && !haySonido;
 
 if(empezoElSonido){
-
  marcaDeTiempo = millis();
 }
 if(terminoElsonido){
@@ -83,96 +97,92 @@ if(terminoElsonido){
 
   if (momentoActual > marcaDeTiempo + umbralDeTiempo){
     ultimoSonido = "largo";
+    opbg = 100;
     console.log("largo")
   }
   if (momentoActual < marcaDeTiempo + umbralDeTiempo){
     ultimoSonido = "corto";
+
+    opbg = 30;
     console.log("corto")
   }
 }
+if (amp > unmbralSonido){
+  reiniciarPrototipo();
+}
+//-------------
+  background(237,230,227,opbg);
 
-bg.background(239,239,230)
+  let fValorbajo = figuras.filter (figura => figura.opacity <100);
+  let fValorMedio = figuras.filter (figura => figura.opacity >= 100 && figura.opacity<=150);
+  let fValorAlto = figuras.filter (figura => figura.opacity > 150);
+  //console.log("figuras = ",figuras.length,"altos =",fValorAlto.length, "medios =", fValorMedio.length, "bajos = ", fValorbajo.length)
 
-    //----separamos entre lentos, vel media y rápidos
-    
-    let rapidos = figuras.filter (spd => spd.vel>1.5);
-    let medios = figuras.filter (spd => spd.vel >= -2.7 && spd.vel<=1.5);
-    let lentos = figuras.filter (spd => spd.vel<-2.7);
-
-   // console.log("figuras = ",figuras.length,"rapidos =", rapidos.length, "medios = ", medios.length, "lentos = ", lentos.length)
-
-
-      for(let i=0;i<medios.length;i++){   //-------- FIGURAS DE VEL MEDIA
-        medios[i].dibujar(1);
-
-        if(haySonido){   //----------------------evento para mover y rotar
-          medios[i].mover();
-        }
-
-        medios[i].fill(150,150,140,170);  //---------------------controlamos el color
-        }
- 
-    for(let i=0;i<rapidos.length;i++){ // ----------------- FIGURAS RAPIDAS
-      rapidos[i].dibujar(1);
-   //   rapidos[i].variacion(amp);
-
-   if (ultimoSonido== "largo"){
-   rapidos[i].mover();
-   }
-
-      rapidos[i].fill(200,200,190,150);   // -----------------------controlamos el color
+    for(let i=0;i<fValorbajo.length;i++){   //-------- FIGURAS DE VALOR BAJO
+   //  console.log("opacidad figura valor bajo",[i], "=",fValorbajo[i].opacity);
+     fValorbajo[i].setColor(195,190,180);
+     fValorbajo[i].dibujar(tamS);
+     if (ultimoSonido== "corto"){
+     fValorbajo[i].mover();
+     }
+     if(!haySonido){
+     fValorbajo[i].cambiarForma();
+     for(let j = 0; j<5; j++){
+     fValorbajo[i].cambiarPosicion();
+     }
+     }
       }
-        console.log(lentos.length)
-      for(let i=0;i<lentos.length;i++){      // ------------ FIGURAS LENTAS
-       // lentos[i].variacion(amp);
-
-        lentos[i].dibujar(2);
-
-        if(haySonido){ //----------------------evento para mover y rotar
-
-       lentos[i].mover();
- 
-      //  lentos[i].rotar();
+     for(let i=0;i<fValorMedio.length;i++){   //-------- FIGURAS DE VALOR MEDIO
+    // console.log("opacidad figura valor medio",[i], "=",fValorMedio[i].opacity);
+     fValorMedio[i].setColor(50,50, 45);
+     fValorMedio[i].dibujar(tamM);
+     if(haySonido){
+      fValorMedio[i].mover();
+     }
+      if (ultimoSonido== "largo"){
+        for(let j = 0; j<1; j++){
+     fValorMedio[i].cambiarForma();
         }
-        lentos[i].fill(70,70,75, 200); //---------------------------controlamos el color
-        }
-        image(bg, 0, 0);
-        antesHabiaSonido = haySonido;
-//estado == "segundo";
+      }
+         }
 
-if(estado == "primero" ){
-
-}else if (estado == "segundo") {
-  
-}else if (estado == "tercero"){
-}
-
-
-if(IMPRIMIR){
-  printData();
+     for(let i=0;i<fValorAlto.length;i++){   //-------- FIGURAS DE VALOR ALTO
+     // console.log("opacidad figura valor alto",[i], "=",fValorAlto[i].opacity);
+     fValorAlto[i].setColor(25,27,30);
+      fValorAlto[i].dibujar(tamL);
+      fValorAlto[i].mover();
+     // fValorAlto[i].cambiarForma();
+      if(!haySonido){   //----------------------evento para mover y rotar
+      fValorAlto[i].bajarOpacidad();   
+      }
+         }
+         antesHabiaSonido = haySonido;
   }
-}
-function printData(){
 
-  background(255);
-  push();
-  textSize(16);
-  fill(0);
-  let texto;
 
-  texto = 'amplitud: ' + amp;
-  text(texto, 20, 20);
+function crearTextura(graphics){
+  graphics.push();
+  graphics.pixelDensity(1);
+    graphics.noStroke();
+    for (let n = 0; n < 19000; n++) {
+      let i = random(width);
+      let j = random(height);
+    graphics.fill(0,0,0,random(5,100));
+    graphics.circle(i,j,random(5,30));
+    }
+    graphics.pop();
 
-  fill(0);
-  ellipse(width/2, height-amp * 300, 30, 30);
-
-  pop();
-
-  gestorAmp.dibujar(100, 500);
-}
-
-function keyPressed() {
-  if (key === 'r') {
-    reiniciarPrototipo();
   }
-}
+  function reiniciarPrototipo() {
+    // Reiniciar figuras
+    figuras = [];
+    for (let i = 0; i < cantidadDeFiguras; i++) {
+      let index = int(random(0, texturas.length));
+      figuras.push(new Figura(texturas[index]));
+    }
+  }
+  function keyPressed() {
+    if (key === 'r') {
+      reiniciarPrototipo();
+    }
+  }
